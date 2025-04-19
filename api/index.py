@@ -8,7 +8,7 @@ import os  # Add this import at the top of the file
 from flipkart import scrape_flipkart  # Ensure the function is defined in flipkart.py
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/scrape": {"origins": "*"}})  # Adjust origins as needed
 
 def scrape_amazon(url):
     headers = {
@@ -60,19 +60,25 @@ def scrape_amazon(url):
 
 @app.route('/scrape', methods=['POST'])
 def scrape():
-    data = request.get_json()
-    url = data.get("url")
+    try:
+        data = request.get_json()
+        url = data.get("url")
 
-    if "amazon" in url:
-        product_details = scrape_amazon(url)
-    elif "amzn" in url:
-        product_details = scrape_amazon(url)
-    elif "flipkart" in url:
-        product_details = scrape_flipkart(url)
-    else:
-        return jsonify({"error": "Unsupported URL. Only Amazon and Flipkart are supported."})
+        if not url:
+            return jsonify({"error": "URL is required."}), 400
 
-    return jsonify(product_details)
+        if "amazon" in url:
+            product_details = scrape_amazon(url)
+        elif "amzn" in url:
+            product_details = scrape_amazon(url)
+        elif "flipkart" in url:
+            product_details = scrape_flipkart(url)
+        else:
+            return jsonify({"error": "Unsupported URL. Only Amazon and Flipkart are supported."})
+
+        return jsonify(product_details)
+    except Exception as e:
+        return jsonify({"error": f"An unexpected error occurred: {str(e)}"}), 500
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))  # Use the PORT environment variable or default to 5000
