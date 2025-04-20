@@ -3,23 +3,24 @@ import requests
 from bs4 import BeautifulSoup
 from flask_cors import CORS
 import os
+import time
 
 app = Flask(__name__)
 CORS(app, resources={r"/scrape": {"origins": "*"}})  # Adjust origins as needed
 
 def scrape_flipkart(url):
-    # Set up headers to mimic a browser request
+    start_time = time.time()
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
         "Accept-Language": "en-US,en;q=0.9",
     }
 
-    # Send a GET request
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=5)
+    print(f"Request time: {time.time() - start_time} seconds")
 
-    # Check if the request was successful
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, "html.parser")
+        print(f"Parsing time: {time.time() - start_time} seconds")
 
         try:
             # Extract product details
