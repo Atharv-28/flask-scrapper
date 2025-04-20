@@ -15,7 +15,7 @@ def scrape_flipkart(url):
         "Accept-Language": "en-US,en;q=0.9",
     }
 
-    response = requests.get(url, headers=headers, timeout=5)
+    response = requests.get(url, headers=headers, timeout=50)
     print(f"Request time: {time.time() - start_time} seconds")
 
     if response.status_code == 200:
